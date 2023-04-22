@@ -1,0 +1,9 @@
+.container {
+  height: 250px;
+  width: 180px;
+  justify-content: space-between;
+}
+
+#temperatureInput {
+  width: -webkit-fill-available;
+}

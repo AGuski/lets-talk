@@ -1,0 +1,32 @@
+<div class="container flex-column-layout">
+  <div class="message-list" #messageList>
+    <div
+      *ngFor="let message of messages.slice(0,-1); index as i"
+      [ngClass]="{'user': message.role === 'user', 'assistant': message.role === 'assistant'}"
+      class="message"
+      (mouseover)="hoverMessage(i)"
+      (mouseleave)="hoverMessage(undefined)"
+    >
+      <p *ngIf="!message.editing">{{message.text}}</p>
+      <textarea
+        *ngIf="message.editing"
+        [(ngModel)]="message.text"
+        (keydown.enter)="finishEditing($event, message)"
+        autogrow rows="1"
+        (input)="onMessagesChange()"
+      ></textarea>
+      <div style="min-width: 65px;" [ngStyle]="{'opacity': hoveredMessage === i ? 1 : 0}" class="message-buttons">
+        <button class="btn btn-sm btn-link" (click)="editMessage(message)"><i class="fa fa-pen-to-square"></i></button>
+        <button class="btn btn-sm btn-link" (click)="removeMessage(message)"><i class="fa fa-trash"></i></button>
+      </div>
+    </div>
+    <div class="dot-pulse-container" *ngIf="waitingForResponse">
+      <div class="dot-pulse"></div>
+    </div>
+  </div>
+  <div class="message-input">
+    <!-- <button style="min-width: 60px;" class="btn btn-primary"><i class="fa fa-microphone"></i></button> -->
+    <textarea [(ngModel)]="messages[messages.length-1].text" (keydown.enter)="sendMessage($event)" (input)="onMessagesChange()" autogrow rows="1"></textarea>
+    <button (click)="sendMessage($event)"><i class="fa fa-paper-plane fa-lg"></i></button>
+  </div>
+</div>

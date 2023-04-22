@@ -1,0 +1,161 @@
+.container {
+  width: 700px;
+  min-height: 500px;
+  max-height: 650px;
+  overflow: scroll;
+}
+
+.message-list {
+  height: 428px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.message {
+  justify-content: space-between;
+  display: flex;
+  white-space: pre-wrap;
+  border-radius: 3px;
+  overflow: auto;
+  margin-bottom: 10px;
+
+  &.user {
+    text-align: left;
+    background-color: #444655;
+    padding: 5px 0px;
+  }
+  &.assistant {
+    text-align: left;
+    color: #d0d3d4;
+  }
+
+  textarea {
+    background-color: #444655;
+    color: #ecf0f1;
+    border: none;
+    border-radius: 3px;
+    resize: vertical;
+    flex-grow: 1;
+    min-height: 40px;
+  }
+
+  p {
+    margin: 5px 10px;
+  }
+}
+
+.message-buttons {
+  transition: opacity ease-in-out 0.25s;
+}
+
+.message-input {
+  display: flex;
+  align-items: center;
+  background-color: #444656;
+  border-radius: 5px;
+  padding: 10px;
+  //box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 35%);
+
+  textarea {
+    background-color: transparent;
+    color: #ecf0f1;
+    border: none;
+    resize: none;
+    flex-grow: 1;
+    margin-right: 10px;
+  }
+
+  button {
+    align-self: end;
+    background: none;
+    border: none;
+    color: #0075ff;
+    &:hover {
+      cursor: pointer;
+      color: #005bc7;
+    }
+  }
+}
+
+textarea:focus {
+  outline: none;
+}
+
+
+// Dot pulse loading animation
+// source: https://codepen.io/nzbin/pen/GGrXbp
+
+.dot-pulse-container {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  padding-top: 20px;
+}
+
+.dot-pulse {
+  position: relative;
+  left: -9999px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #9880ff;
+  color: #9880ff;
+  box-shadow: 9999px 0 0 -5px;
+  animation: dot-pulse 1.5s infinite linear;
+  animation-delay: 0.25s;
+}
+.dot-pulse::before, .dot-pulse::after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #9880ff;
+  color: #9880ff;
+}
+.dot-pulse::before {
+  box-shadow: 9984px 0 0 -5px;
+  animation: dot-pulse-before 1.5s infinite linear;
+  animation-delay: 0s;
+}
+.dot-pulse::after {
+  box-shadow: 10014px 0 0 -5px;
+  animation: dot-pulse-after 1.5s infinite linear;
+  animation-delay: 0.5s;
+}
+
+@keyframes dot-pulse-before {
+  0% {
+    box-shadow: 9984px 0 0 -5px;
+  }
+  30% {
+    box-shadow: 9984px 0 0 2px;
+  }
+  60%, 100% {
+    box-shadow: 9984px 0 0 -5px;
+  }
+}
+@keyframes dot-pulse {
+  0% {
+    box-shadow: 9999px 0 0 -5px;
+  }
+  30% {
+    box-shadow: 9999px 0 0 2px;
+  }
+  60%, 100% {
+    box-shadow: 9999px 0 0 -5px;
+  }
+}
+@keyframes dot-pulse-after {
+  0% {
+    box-shadow: 10014px 0 0 -5px;
+  }
+  30% {
+    box-shadow: 10014px 0 0 2px;
+  }
+  60%, 100% {
+    box-shadow: 10014px 0 0 -5px;
+  }
+}

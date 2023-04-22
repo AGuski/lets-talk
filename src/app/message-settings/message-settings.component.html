@@ -1,0 +1,41 @@
+<div class="container flex-column-layout">
+  <h4 (click)="toggleSettings()" style="margin-bottom: 0;">> Conversation Settings</h4>
+  <div style="margin-top: 0.5rem;" class="form-group" [ngStyle]="{'display': collapsed ? 'none' : 'initial'}">
+    <label for="systemPromptInput">System Prompt</label>
+    <textarea
+      [(ngModel)]="systemPrompt"
+      class="form-control"
+      id="systemPromptInput"
+      rows="7"
+      (ngModelChange)="onSystemPromptChange($event)"
+    ></textarea>
+
+    <h5>Message Injection</h5>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" [(ngModel)]="messageInjectionConfig.useMessageInjection" id="useMessageInjectionInput" (ngModelChange)="onUseMessageInjectionChange($event)">
+      <label class="form-check-label" for="useMessageInjectionInput">
+        Use Message Injection
+      </label>
+    </div>
+    <div class="form-group">
+      <label for="injectionDepth">Depth (current user message + n)</label>
+      <input type="number" class="form-control" id="injectionDepth" [(ngModel)]="messageInjectionConfig.injectionDepth" (ngModelChange)="onInjectionDepthChange($event)">
+    </div>
+    <div class="form-group">
+      <label for="injectionRole">Role (role, assistant, system)</label>
+      <select class="form-control" id="injectionRole" [(ngModel)]="messageInjectionConfig.injectionRole" (ngModelChange)="onInjectionRoleChange($event)">
+        <option>user</option>
+        <option>system</option>
+        <option>assistant</option>
+      </select>
+    </div>
+    <label for="injectionPromptInput">Prompt</label>
+    <textarea
+      [(ngModel)]="messageInjectionConfig.injectionPrompt"
+      class="form-control"
+      id="injectionPromptInput"
+      rows="7"
+      (ngModelChange)="onInjectionPromptChange($event)"
+    ></textarea>
+  </div>
+</div>
