@@ -6,8 +6,8 @@ import { ChatRequest } from 'src/interfaces/chat-request';
 import { GPTTokens } from 'gpt-tokens';
 import Keyv from 'keyv';
 import { KeyvFile } from 'keyv-file';
-import { v4 as uuidv4 } from 'uuid';
-
+import { Server } from 'socket.io';
+import { WebSocketServer } from 'ws';
 dotenv.config();
 
 const { OPENAI_API_KEY, PORT = 3000 } = process.env;
@@ -17,9 +17,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+const wss = new WebSocketServer({ port: 5000 });
+wss.on('connection', (socket) => {
+  socket.on('message', (data) => {
+    console.log(data);
+    // Process the received audio data
+  });
+});
+
+const keyvFile = new KeyvFile({ filename: 'storage.json' });
+
 // Create a Keyv storage with JSON file
 const storage = new Keyv({
-  store: new KeyvFile({ filename: 'storage.json' }),
+  store: keyvFile,
 });
 
 const configuration = new Configuration({
@@ -69,18 +79,18 @@ app.post(
   }
 );
 
-// Store an object and return the generated uuid
-app.post('/store', async (req, res) => {
+// Store an object and return it.
+app.post('/store/:id', async (req, res) => {
+  const id = req.params.id;
   const data = req.body;
-  const uuid = uuidv4();
-  await storage.set(uuid, data);
-  res.status(201).json({ uuid });
+  await storage.set(id, data);
+  res.status(201).json(data);
 });
 
-// Retrieve an object by uuid
-app.get('/store/:uuid', async (req, res) => {
-  const uuid = req.params.uuid;
-  const data = await storage.get(uuid);
+// Retrieve an object by id
+app.get('/store/:id', async (req, res) => {
+  const id = req.params.id;
+  const data = await storage.get(id);
   if (data === undefined) {
     res.status(404).json({ error: 'Not found' });
   } else {
@@ -88,11 +98,11 @@ app.get('/store/:uuid', async (req, res) => {
   }
 });
 
-// Overwrite an object by uuid
-app.put('/store/:uuid', async (req, res) => {
-  const uuid = req.params.uuid;
+// Overwrite an object by id
+app.put('/store/:id', async (req, res) => {
+  const id = req.params.id;
   const data = req.body;
-  const success = await storage.set(uuid, data);
+  const success = await storage.set(id, data);
   if (success) {
     res.json({ message: 'Updated successfully' });
   } else {
@@ -100,10 +110,10 @@ app.put('/store/:uuid', async (req, res) => {
   }
 });
 
-// Delete an object by uuid
-app.delete('/store/:uuid', async (req, res) => {
-  const uuid = req.params.uuid;
-  const success = await storage.delete(uuid);
+// Delete an object by id
+app.delete('/store/:id', async (req, res) => {
+  const id = req.params.id;
+  const success = await storage.delete(id);
   if (success) {
     res.json({ message: 'Deleted successfully' });
   } else {
@@ -111,8 +121,24 @@ app.delete('/store/:uuid', async (req, res) => {
   }
 });
 
+// Retrieve al stored objects
+app.get('/store', async (req, res) => {
+  const keys = await keyvFile
+    .keys()
+    .map((key: string) => key.replace('keyv:', ''));
+  const data = await Promise.all(
+    keys.map(async (key: string) => await storage.get(key))
+  );
+  res.json(data);
+});
+
 app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
+// server.on('upgrade', (request, socket, head) => {
+//   wsServer.handleUpgrade(request, socket, head, socket => {
+//     wsServer.emit('connection', socket, request);
+//   });
+// });

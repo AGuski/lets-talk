@@ -1,11 +1,16 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef
+} from '@angular/core';
+import RecordRTC from 'recordrtc';
 import { ChatMessage } from 'src/app/chat/chat-message.model';
 import { SessionService } from 'src/app/session.service';
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.component.html',
-  styleUrls: ['./chat.component.scss']
+  styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent {
   @ViewChild('messageList', { static: false }) private messageList!: ElementRef;
@@ -16,10 +21,12 @@ export class ChatComponent {
 
   waitingForResponse = false;
 
-  constructor(private sessionService: SessionService) { }
+  socket = new WebSocket('ws://localhost:5000');
+
+  constructor(private sessionService: SessionService) {}
 
   ngOnInit() {
-    this.sessionService.session$.subscribe(session => {
+    this.sessionService.session$.subscribe((session) => {
       this.messages = session.messages;
       this.scrollToBottom();
     });
@@ -70,11 +77,31 @@ export class ChatComponent {
 
   scrollToBottom(): void {
     setTimeout(() => {
-      this.messageList.nativeElement.scrollTop = this.messageList.nativeElement.scrollHeight;
+      this.messageList.nativeElement.scrollTop =
+        this.messageList.nativeElement.scrollHeight;
     });
   }
 
   onMessagesChange() {
-    this.sessionService.updateSession({ messages: this.messages });
+    this.sessionService.updateCurrentSession({ messages: this.messages });
+  }
+
+  async recordAudio() {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const recordRTC = new RecordRTC(stream, {
+      type: 'audio',
+      timeSlice: 1000,
+      ondataavailable: (blob) => {
+        console.log('send');
+        this.socket.send(blob);
+      },
+    });
+    console.log('startRec');
+    recordRTC.startRecording();
+
+    setTimeout(() => {
+      console.log('stopRec');
+      recordRTC.stopRecording();
+    }, 5000);
   }
 }

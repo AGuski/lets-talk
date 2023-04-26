@@ -23,21 +23,21 @@ export class ModelSettingsComponent implements OnInit {
 
   onModelChange(value: string): void {
     this.model = value;
-    this.sessionService.updateSession({
+    this.sessionService.updateCurrentSession({
       model: this.model
     });
   }
 
   onTemperatureChange(value: number): void {
     this.temperature = value;
-    this.sessionService.updateSession({
+    this.sessionService.updateCurrentSession({
       temperature: this.temperature
     });
   }
 
   onMaxResponseLengthChange(value: number): void {
     this.maxResponseLength = value;
-    this.sessionService.updateSession({
+    this.sessionService.updateCurrentSession({
       max_tokens: this.maxResponseLength
     });
   }

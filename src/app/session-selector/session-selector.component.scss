@@ -1,0 +1,24 @@
+:host {
+  display: flex;
+}
+
+.selector {
+  width: 400px;
+  margin-right: 10px;
+}
+
+.session-menu-btn, .session-menu {
+  width: 100%;
+}
+
+.session-menu > .dropdown-item {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer
+}
+
+select {
+  width: 200px;
+  border: none;
+  background-color: #444757;
+}

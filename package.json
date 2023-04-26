@@ -29,7 +29,9 @@
     "keyv": "^4.5.2",
     "keyv-file": "^0.2.0",
     "openai": "^3.2.1",
+    "recordrtc": "^5.6.2",
     "rxjs": "~7.5.0",
+    "socket.io": "^4.6.1",
     "tslib": "^2.3.0",
     "uuid": "^9.0.0",
     "zone.js": "~0.12.0"
@@ -42,6 +44,7 @@
     "@types/express": "^4.17.17",
     "@types/jasmine": "~4.3.0",
     "@types/node": "^18.15.11",
+    "@types/recordrtc": "^5.6.11",
     "@types/uuid": "^9.0.1",
     "jasmine-core": "~4.5.0",
     "karma": "~6.4.0",
@@ -54,6 +57,9 @@
     "typescript": "~4.8.2"
   },
   "nodemonConfig": {
-    "ignore": ["src/app/*", "storage.json"]
+    "ignore": [
+      "src/app/*",
+      "storage.json"
+    ]
   }
 }

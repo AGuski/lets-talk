@@ -21,7 +21,8 @@
 
 @import "../node_modules/bootstrap/scss/buttons";
 @import "../node_modules/bootstrap/scss/forms";
-// @import "../node_modules/bootstrap/scss/dropdown";
+@import "../node_modules/bootstrap/scss/offcanvas";
+@import "../node_modules/bootstrap/scss/dropdown";
 
 // 5. Add additional custom code here
 
@@ -71,10 +72,22 @@ h4 {
   box-shadow: 0px 0px 10px 0px black;
   border-radius: 5px;
   padding: 10px;
+  margin: 10px 0;
 }
 
 .flex-column-layout {
   display: flex;
   align-items: stretch;
   flex-direction: column;
+}
+
+.icon-button {
+  align-self: end;
+  background: none;
+  border: none;
+  color: #0075ff;
+  &:hover {
+    cursor: pointer;
+    color: #005bc7;
+  }
 }

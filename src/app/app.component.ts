@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-root',
@@ -8,7 +9,22 @@ import { Component } from '@angular/core';
 export class AppComponent {
   title = 'rpg-gpt';
 
-  toggleMessageSettings() {
-    
+  constructor() {}
+
+  toggleMessageSettings() {}
+
+  // openSessions() {
+  //   const offcanvasRef = this.offcanvasService.open(SessionOffCanvasComponent);
+	// 	offcanvasRef.componentInstance.name = 'World';
+  // }
+
+  selectSession(event: MouseEvent, dropdown: NgbDropdown) {
+    console.log('selectSession');
+    dropdown.close();
+  }
+
+  trashSession(event: MouseEvent) {
+    event.stopPropagation();
+    console.log('trashSession');
   }
 }

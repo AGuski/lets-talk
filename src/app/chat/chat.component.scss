@@ -64,17 +64,6 @@
     flex-grow: 1;
     margin-right: 10px;
   }
-
-  button {
-    align-self: end;
-    background: none;
-    border: none;
-    color: #0075ff;
-    &:hover {
-      cursor: pointer;
-      color: #005bc7;
-    }
-  }
 }
 
 textarea:focus {

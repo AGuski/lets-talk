@@ -1,10 +1,29 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum, ChatCompletionResponseMessage } from 'openai';
-import { BehaviorSubject, Observable, Subject, Subscription, map } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription, map, tap } from 'rxjs';
 import { ChatMessage } from 'src/app/chat/chat-message.model';
 import { DefaultChatTransformer } from 'src/app/conversation-transformers/default-chat.transformer';
 import { Session } from 'src/interfaces/session';
+import { v4 as uuidv4 } from 'uuid';
+
+const newSessionTemplate = {
+  id: 'NEW',
+  name: 'New Session',
+  model: 'gpt-3.5-turbo',
+  temperature: 0.9,
+  max_tokens: 1000,
+  conversationSettings: {
+    systemPrompt: 'You are a helpful AI Chat assistant. Keep your answers short.',
+    useMessageInjection: false,
+    injectionPrompt: '',
+    injectionDepth: 1,
+    injectionRole: 'user' as ChatCompletionRequestMessageRoleEnum
+  },
+  messages: [
+    { role: 'user', text: '', editing: false },
+  ]
+};
 
 @Injectable({
   providedIn: 'root'
@@ -12,22 +31,7 @@ import { Session } from 'src/interfaces/session';
 export class SessionService {
   readonly serverUrl = 'http://localhost:3000';
 
-  private currentSession = {
-    id: '1',
-    model: 'gpt-3.5-turbo',
-    temperature: 0.9,
-    max_tokens: 1000,
-    conversationSettings: {
-      systemPrompt: 'You are a helpful AI Chat assistant. Keep your answers short.',
-      useMessageInjection: false,
-      injectionPrompt: '',
-      injectionDepth: 1,
-      injectionRole: 'user' as ChatCompletionRequestMessageRoleEnum
-    },
-    messages: [
-      { role: 'user', text: '', editing: false },
-    ]
-  };
+  private currentSession = newSessionTemplate;
 
   private transformer = new DefaultChatTransformer();
 
@@ -39,15 +43,18 @@ export class SessionService {
   tokenizerSubscription: Subscription | undefined;
 
   constructor(private http: HttpClient) {
-    this.retrieveSession();
+    const sessionId = localStorage.getItem('sessionId');
+    if (sessionId) {
+      this.loadSession(sessionId);
+    }
   }
 
-  updateSession(session: Partial<Session>): void {
+  updateCurrentSession(session: Partial<Session>): void {
     this.currentSession = {
       ...this.currentSession,
       ...session
     };
-    this.debounceStoreSession();
+    this.debounceStoreCurrentSession();
     this.session$.next(this.currentSession);
   }
 
@@ -81,24 +88,28 @@ export class SessionService {
   };
 
   storeNewSession(): void {
-    this.http.post<{uuid: string}>(`${this.serverUrl}/store`, this.currentSession).subscribe(response => {
-      console.log('Session stored: ', response.uuid);
-      localStorage.setItem('sessionId', response.uuid as string);
+    const uuid = uuidv4();
+    this.currentSession.id = uuid;
+    this.http.post<Session>(`${this.serverUrl}/store/${uuid}`, this.currentSession).subscribe(response => {
+      console.log('Session stored: ', response.id);
+      localStorage.setItem('sessionId', response.id as string);
     });
   }
 
-  retrieveSession(): void {
-    const sessionId = localStorage.getItem('sessionId');
-    if (sessionId) {
-      this.http.get<Session>(`${this.serverUrl}/store/${sessionId}`).subscribe(session => {
-        console.log('Session retrieved: ', session);
-        this.currentSession = session;
-        this.session$.next(session);
-      });
-    }
+  getAllSessions(): Observable<Session[]> {
+    return this.http.get<Session[]>(`${this.serverUrl}/store`);
   }
 
-  updateStoredSession(): void {
+  loadSession(sessionId: string): void {
+    this.http.get<Session>(`${this.serverUrl}/store/${sessionId}`).subscribe(session => {
+      this.currentSession = session;
+      this.session$.next(session);
+      localStorage.setItem('sessionId', session.id as string);
+      console.log('Session loaded: ', session);
+    });
+  }
+
+  storeCurrentSession(): void {
     const sessionId = localStorage.getItem('sessionId');
     if (sessionId) {
       this.http.put(`${this.serverUrl}/store/${sessionId}`, this.currentSession).subscribe(session => {
@@ -109,18 +120,43 @@ export class SessionService {
     }
   }
 
+  deleteSession(sessionId: string): Observable<{message: string}> {
+    return this.http.delete<{message: string}>(`${this.serverUrl}/store/${sessionId}`);
+  }
+
+  createSession(): Session {
+    this.currentSession = newSessionTemplate;
+    this.session$.next(this.currentSession);
+    localStorage.removeItem('sessionId');
+    return this.currentSession;
+  }
+
+  updateSessionName(sessionId: string, name: string): void {
+    if (sessionId === this.currentSession.id) {
+      this.updateCurrentSession({ name });
+    }
+    this.http.get<Session>(`${this.serverUrl}/store/${sessionId}`).subscribe(session => {
+      this.http.put(`${this.serverUrl}/store/${sessionId}`, {
+        ...session,
+        name
+      }).subscribe(session => {
+        console.log('Session name updated');
+      });
+    });
+  }
+
   private transformMessages(messages: ChatMessage[]): ChatCompletionRequestMessage[] {
     this.transformer.setSystemPrompt(this.currentSession.conversationSettings.systemPrompt);
     this.transformer.setMessageInjection(this.currentSession.conversationSettings);
     return this.transformer.transform(messages);
   }
 
-  private debounceStoreSession() {
+  private debounceStoreCurrentSession() {
     if (this.sessionStoringDebounceTimeout) {
       clearTimeout(this.sessionStoringDebounceTimeout);
     }
     this.sessionStoringDebounceTimeout = setTimeout(() => {
-      this.updateStoredSession();
+      this.storeCurrentSession();
       this.sessionStoringDebounceTimeout = undefined;
     }, 1000);
   };

@@ -1,9 +1,14 @@
-<div>
-  <app-model-settings></app-model-settings>
-  <app-tokenizer-info></app-tokenizer-info>
-  <!-- <app-speech-settings></app-speech-settings> -->
+<div class="top-bar">
+  <app-session-selector></app-session-selector>
 </div>
-<div>
-  <app-chat></app-chat>
-  <app-message-settings></app-message-settings>
+<div class="containers">
+  <div class="left-containers-col">
+    <app-model-settings></app-model-settings>
+    <app-tokenizer-info></app-tokenizer-info>
+    <!-- <app-speech-settings></app-speech-settings> -->
+  </div>
+  <div class="mid-containers-col">
+    <app-chat></app-chat>
+    <app-message-settings></app-message-settings>
+  </div>
 </div>

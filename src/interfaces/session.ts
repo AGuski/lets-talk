@@ -3,6 +3,7 @@ import { MessageInjectionConfig } from './message-injection-config';
 
 export interface Session {
   id: string;
+  name: string;
   model: string;
   messages: ChatMessage[];
   temperature: number;

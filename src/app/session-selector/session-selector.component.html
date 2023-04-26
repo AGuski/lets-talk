@@ -1,0 +1,20 @@
+<div ngbDropdown autoClose="outside" class="d-inline-block selector" #ngbDropdown="ngbDropdown">
+  <button type="button" class="btn btn-outline-primary session-menu-btn" id="dropdownForm1" ngbDropdownToggle>
+    {{currentSession!.name}}
+  </button>
+  <div ngbDropdownMenu class="session-menu">
+    <div ngbDropdownItem *ngFor="let session of sessions" (click)="selectSession($event, ngbDropdown, session)" class="dropdown-item">
+      <ng-container *ngIf="editedSession !== session.id; else sessionEdit">
+        {{session.name}}
+      </ng-container>
+      <ng-template #sessionEdit>
+        <input [(ngModel)]="session.name" #sessionNameInput (focusout)="updateSessionName($event, session)" (keydown)="updateSessionName($event, session)"/>
+      </ng-template>
+      <div>
+        <button class="icon-button"(click)="editSessionName($event, session)"><i class="fa fa-pen"></i></button>
+        <button class="icon-button"(click)="trashSession($event, session)"><i class="fa fa-trash"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+<button class="btn btn-primary" (click)="createNewSession()">New Session</button>

@@ -43,3 +43,4 @@ Thumbs.db
 
 .env
 storage.json
+google-credentials.json

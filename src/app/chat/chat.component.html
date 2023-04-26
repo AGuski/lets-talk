@@ -26,7 +26,8 @@
   </div>
   <div class="message-input">
     <!-- <button style="min-width: 60px;" class="btn btn-primary"><i class="fa fa-microphone"></i></button> -->
+    <button (click)="recordAudio()" class="icon-button"><i class="fa fa-microphone fa-lg"></i></button>
     <textarea [(ngModel)]="messages[messages.length-1].text" (keydown.enter)="sendMessage($event)" (input)="onMessagesChange()" autogrow rows="1"></textarea>
-    <button (click)="sendMessage($event)"><i class="fa fa-paper-plane fa-lg"></i></button>
+    <button (click)="sendMessage($event)" class="icon-button"><i class="fa fa-paper-plane fa-lg"></i></button>
   </div>
 </div>

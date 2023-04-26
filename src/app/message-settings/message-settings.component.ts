@@ -36,7 +36,7 @@ export class MessageSettingsComponent implements OnInit {
   onSystemPromptChange(value: string): void {
     this.systemPrompt = value;
 
-    this.sessionService.updateSession({
+    this.sessionService.updateCurrentSession({
       conversationSettings: {
         ...this.sessionService.session$.value.conversationSettings,
         systemPrompt: this.systemPrompt
@@ -73,7 +73,7 @@ export class MessageSettingsComponent implements OnInit {
   }
 
   updateSessionWithProperty(config: Partial<MessageInjectionConfig>) {
-    this.sessionService.updateSession({
+    this.sessionService.updateCurrentSession({
       conversationSettings: {
         ...this.sessionService.session$.value.conversationSettings,
         ...config
