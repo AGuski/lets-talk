@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbAlertModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { MarkdownModule } from 'ngx-markdown';
 import { ChatComponent } from './chat/chat.component';
 import { AutogrowDirective } from './autogrow.directive';
 import { ModelSettingsComponent } from './model-settings/model-settings.component';
@@ -33,7 +34,8 @@ import { SessionSelectorComponent } from './session-selector/session-selector.co
     BrowserAnimationsModule,
     AppRoutingModule,
     NgbAlertModule,
-    NgbDropdownModule
+    NgbDropdownModule,
+    MarkdownModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent]

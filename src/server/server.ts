@@ -1,14 +1,50 @@
-import express, { Express, Request, Response, NextFunction } from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import { Configuration, OpenAIApi } from 'openai';
-import { ChatRequest } from 'src/interfaces/chat-request';
-import { GPTTokens } from 'gpt-tokens';
-import Keyv from 'keyv';
-import { KeyvFile } from 'keyv-file';
-import { Server } from 'socket.io';
-import { WebSocketServer } from 'ws';
+import express, { Express, Request, Response, NextFunction } from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import { Configuration, OpenAIApi } from "openai";
+import { ChatRequest } from "src/interfaces/chat-request";
+import { GPTTokens } from "gpt-tokens";
+import Keyv from "keyv";
+import { KeyvFile } from "keyv-file";
+import { Server } from "socket.io";
+import { WebSocketServer } from "ws";
+import { SpeechClient } from '@google-cloud/speech';
 dotenv.config();
+
+
+
+export class SpeechToTextTranscriber {
+  
+  client = new SpeechClient();
+  recognizeStream;
+
+  constructor() {
+    const request = {
+      config: {
+        encoding: 'LINEAR16' as 'LINEAR16',
+        sampleRateHertz: 16000,
+        languageCode: 'en-US',
+      },
+      interimResults: true
+    }
+  
+    this.recognizeStream = this.client.streamingRecognize(request)
+    .on('error', console.error)
+    .on('data', data => {
+      console.log(data);
+      console.log(`Transcription: ${data.results[0].alternatives[0].transcript}`);
+    });
+  }
+
+  write(data: ArrayBufferLike) {
+    this.recognizeStream.write(Buffer.from(data));
+  }
+
+  end() {
+    this.recognizeStream.end();
+  }
+}
+
 
 const { OPENAI_API_KEY, PORT = 3000 } = process.env;
 
@@ -18,10 +54,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 const wss = new WebSocketServer({ port: 5000 });
+
+const transcriber = new SpeechToTextTranscriber();
 wss.on('connection', (socket) => {
-  socket.on('message', (data) => {
-    console.log(data);
-    // Process the received audio data
+  socket.on('message', (data: ArrayBufferLike) => {
+    console.log('msg');
+    transcriber.write(data);
+  });
+  // Process the received audio data
+  socket.on('close', () => {
+    console.log('close');
+    transcriber.end();
   });
 });
 

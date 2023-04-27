@@ -88,20 +88,52 @@ export class ChatComponent {
 
   async recordAudio() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const recordRTC = new RecordRTC(stream, {
-      type: 'audio',
-      timeSlice: 1000,
-      ondataavailable: (blob) => {
-        console.log('send');
-        this.socket.send(blob);
-      },
-    });
-    console.log('startRec');
-    recordRTC.startRecording();
+
+    const audioContext = new AudioContext();
+    const mediaStreamSource = audioContext.createMediaStreamSource(stream);
+    const scriptProcessorNode = audioContext.createScriptProcessor(4096, 1, 1);
+    
+    mediaStreamSource.connect(scriptProcessorNode);
+    scriptProcessorNode.connect(audioContext.destination);
+    
+    scriptProcessorNode.onaudioprocess = audioProcessingEvent => {
+      const buffer = audioProcessingEvent.inputBuffer.getChannelData(0);
+      const pcmData = convertFloat32ToInt16(buffer);
+      this.socket.send(pcmData);
+    };
+    
+    function convertFloat32ToInt16(buffer: Float32Array) {
+      let l = buffer.length;
+      let buf = new Int16Array(l);
+    
+      while (l--) {
+        buf[l] = Math.min(1, buffer[l]) * 0x7FFF;
+      }
+      return buf.buffer;
+    }
 
     setTimeout(() => {
       console.log('stopRec');
-      recordRTC.stopRecording();
+      this.socket.close();
     }, 5000);
+
+
+
+    // const recordRTC = new RecordRTC(stream, {
+    //   type: 'audio',
+    //   timeSlice: 1000,
+    //   ondataavailable: (blob) => {
+    //     console.log('send');
+    //     this.socket.send(blob);
+    //   },
+    // });
+    // console.log('startRec');
+    // recordRTC.startRecording();
+
+    // setTimeout(() => {
+    //   console.log('stopRec');
+    //   recordRTC.stopRecording();
+    //   this.socket.close();
+    // }, 5000);
   }
 }

@@ -24,7 +24,6 @@ export class SessionSelectorComponent implements OnInit{
       this.sessions = sessions;
     });
     this.sessionService.session$.subscribe((session) => {
-      console.log('sub Sessionsevice', session);
       this.currentSession = session;
     });
   }

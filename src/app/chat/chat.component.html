@@ -7,7 +7,7 @@
       (mouseover)="hoverMessage(i)"
       (mouseleave)="hoverMessage(undefined)"
     >
-      <p *ngIf="!message.editing">{{message.text}}</p>
+      <p markdown *ngIf="!message.editing">{{message.text}}</p>
       <textarea
         *ngIf="message.editing"
         [(ngModel)]="message.text"
