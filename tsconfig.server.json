@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
-    "esModuleInterop": true,
-    "target": "es6",
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "outDir": "dist"
+      "lib": ["ES2022", "DOM"],
+      "module": "ES2022",
+      "moduleResolution": "Node",
+      "target": "ES2022",
+      "esModuleInterop": true,
+      "outDir": "dist/"
   },
-  "lib": ["esnext"]
+  "ts-node": {
+      "esm": true,
+      "experimentalSpecifierResolution": "node"
+  }
 }

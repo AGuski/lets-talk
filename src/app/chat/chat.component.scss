@@ -1,5 +1,4 @@
 .container {
-  width: 700px;
   min-height: 500px;
   max-height: 650px;
   overflow: scroll;
@@ -41,6 +40,9 @@
 
   p {
     margin: 5px 10px;
+
+    // because of markdown
+    // margin-bottom: -20px;
   }
 }
 
@@ -63,6 +65,16 @@
     resize: none;
     flex-grow: 1;
     margin-right: 10px;
+  }
+
+  .recording-button {
+    background-color: transparent;
+    border-radius: 100%;
+    padding: 5px 10px;
+    
+    &.active {
+      background-color: #b72929;
+    }
   }
 }
 

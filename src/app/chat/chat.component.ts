@@ -3,9 +3,10 @@ import {
   ViewChild,
   ElementRef
 } from '@angular/core';
-import RecordRTC from 'recordrtc';
+import { Subscription, concatMap, of, tap } from 'rxjs';
 import { ChatMessage } from 'src/app/chat/chat-message.model';
 import { SessionService } from 'src/app/session.service';
+import { SpeechService } from 'src/app/speech.service';
 
 @Component({
   selector: 'app-chat',
@@ -20,15 +21,24 @@ export class ChatComponent {
   hoveredMessage: number | undefined;
 
   waitingForResponse = false;
+  isRecording = false;
+  sttSubscription: Subscription | undefined;
 
-  socket = new WebSocket('ws://localhost:5000');
-
-  constructor(private sessionService: SessionService) {}
+  constructor(
+    private sessionService: SessionService,
+    private speechService: SpeechService
+  ) {}
 
   ngOnInit() {
-    this.sessionService.session$.subscribe((session) => {
+    this.sessionService.session$.pipe(
+      concatMap((value, index) => index === 0
+        ? of(value).pipe(
+            tap(() => this.scrollToBottom()),
+          )
+        : of(value)
+      )
+    ).subscribe((session) => {
       this.messages = session.messages;
-      this.scrollToBottom();
     });
   }
 
@@ -86,54 +96,16 @@ export class ChatComponent {
     this.sessionService.updateCurrentSession({ messages: this.messages });
   }
 
-  async recordAudio() {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-    const audioContext = new AudioContext();
-    const mediaStreamSource = audioContext.createMediaStreamSource(stream);
-    const scriptProcessorNode = audioContext.createScriptProcessor(4096, 1, 1);
-    
-    mediaStreamSource.connect(scriptProcessorNode);
-    scriptProcessorNode.connect(audioContext.destination);
-    
-    scriptProcessorNode.onaudioprocess = audioProcessingEvent => {
-      const buffer = audioProcessingEvent.inputBuffer.getChannelData(0);
-      const pcmData = convertFloat32ToInt16(buffer);
-      this.socket.send(pcmData);
-    };
-    
-    function convertFloat32ToInt16(buffer: Float32Array) {
-      let l = buffer.length;
-      let buf = new Int16Array(l);
-    
-      while (l--) {
-        buf[l] = Math.min(1, buffer[l]) * 0x7FFF;
-      }
-      return buf.buffer;
+  toggleRecording() {
+    if (!this.isRecording) {
+      this.sttSubscription = this.speechService.onTranscription().subscribe((transcription) => {
+        this.messages[this.messages.length - 1].text = transcription;
+      });
+      this.speechService.startSTTRecording();
+    } else {
+      this.speechService.stopSTTRecording();
+      this.sttSubscription?.unsubscribe();
     }
-
-    setTimeout(() => {
-      console.log('stopRec');
-      this.socket.close();
-    }, 5000);
-
-
-
-    // const recordRTC = new RecordRTC(stream, {
-    //   type: 'audio',
-    //   timeSlice: 1000,
-    //   ondataavailable: (blob) => {
-    //     console.log('send');
-    //     this.socket.send(blob);
-    //   },
-    // });
-    // console.log('startRec');
-    // recordRTC.startRecording();
-
-    // setTimeout(() => {
-    //   console.log('stopRec');
-    //   recordRTC.stopRecording();
-    //   this.socket.close();
-    // }, 5000);
+    this.isRecording = !this.isRecording;
   }
 }

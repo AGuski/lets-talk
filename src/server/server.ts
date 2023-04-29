@@ -2,68 +2,36 @@ import express, { Express, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { Configuration, OpenAIApi } from "openai";
-import { ChatRequest } from "src/interfaces/chat-request";
+import { ChatRequest } from "./../interfaces/chat-request";
 import { GPTTokens } from "gpt-tokens";
 import Keyv from "keyv";
 import { KeyvFile } from "keyv-file";
-import { Server } from "socket.io";
 import { WebSocketServer } from "ws";
-import { SpeechClient } from '@google-cloud/speech';
+import { SpeechToTextTranscriber } from "./speech-to-text";
 dotenv.config();
 
-
-
-export class SpeechToTextTranscriber {
-  
-  client = new SpeechClient();
-  recognizeStream;
-
-  constructor() {
-    const request = {
-      config: {
-        encoding: 'LINEAR16' as 'LINEAR16',
-        sampleRateHertz: 16000,
-        languageCode: 'en-US',
-      },
-      interimResults: true
-    }
-  
-    this.recognizeStream = this.client.streamingRecognize(request)
-    .on('error', console.error)
-    .on('data', data => {
-      console.log(data);
-      console.log(`Transcription: ${data.results[0].alternatives[0].transcript}`);
-    });
-  }
-
-  write(data: ArrayBufferLike) {
-    this.recognizeStream.write(Buffer.from(data));
-  }
-
-  end() {
-    this.recognizeStream.end();
-  }
-}
-
-
-const { OPENAI_API_KEY, PORT = 3000 } = process.env;
+const { OPENAI_API_KEY, PORT = 3000, WS_PORT = 5000 } = process.env;
 
 const app: Express = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-const wss = new WebSocketServer({ port: 5000 });
 
-const transcriber = new SpeechToTextTranscriber();
-wss.on('connection', (socket) => {
+// STT vias websocket
+const wss = new WebSocketServer({ port: WS_PORT as number });
+wss.on('connection', socket => {
+  const transcriber = new SpeechToTextTranscriber();
+
+  transcriber.onTranscribe().subscribe(transcription => {
+    socket.send(transcription);
+  });
+
   socket.on('message', (data: ArrayBufferLike) => {
-    console.log('msg');
     transcriber.write(data);
   });
-  // Process the received audio data
+
   socket.on('close', () => {
-    console.log('close');
     transcriber.end();
   });
 });
@@ -180,8 +148,3 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
-// server.on('upgrade', (request, socket, head) => {
-//   wsServer.handleUpgrade(request, socket, head, socket => {
-//     wsServer.emit('connection', socket, request);
-//   });
-// });

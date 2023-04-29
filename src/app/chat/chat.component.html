@@ -7,7 +7,7 @@
       (mouseover)="hoverMessage(i)"
       (mouseleave)="hoverMessage(undefined)"
     >
-      <p markdown *ngIf="!message.editing">{{message.text}}</p>
+      <p markdown ngPreserveWhitespaces *ngIf="!message.editing">{{message.text}}</p>
       <textarea
         *ngIf="message.editing"
         [(ngModel)]="message.text"
@@ -25,8 +25,13 @@
     </div>
   </div>
   <div class="message-input">
-    <!-- <button style="min-width: 60px;" class="btn btn-primary"><i class="fa fa-microphone"></i></button> -->
-    <button (click)="recordAudio()" class="icon-button"><i class="fa fa-microphone fa-lg"></i></button>
+    <button 
+      (click)="toggleRecording()"
+      class="icon-button recording-button" 
+      [ngClass]="{'active': isRecording}"
+    >
+      <i class="fa fa-microphone fa-lg"></i>
+    </button>
     <textarea [(ngModel)]="messages[messages.length-1].text" (keydown.enter)="sendMessage($event)" (input)="onMessagesChange()" autogrow rows="1"></textarea>
     <button (click)="sendMessage($event)" class="icon-button"><i class="fa fa-paper-plane fa-lg"></i></button>
   </div>
