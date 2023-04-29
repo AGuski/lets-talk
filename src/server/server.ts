@@ -17,25 +17,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-
-// STT vias websocket
-const wss = new WebSocketServer({ port: WS_PORT as number });
-wss.on('connection', socket => {
-  const transcriber = new SpeechToTextTranscriber();
-
-  transcriber.onTranscribe().subscribe(transcription => {
-    socket.send(transcription);
-  });
-
-  socket.on('message', (data: ArrayBufferLike) => {
-    transcriber.write(data);
-  });
-
-  socket.on('close', () => {
-    transcriber.end();
-  });
-});
-
 const keyvFile = new KeyvFile({ filename: 'storage.json' });
 
 // Create a Keyv storage with JSON file
@@ -141,6 +122,26 @@ app.get('/store', async (req, res) => {
     keys.map(async (key: string) => await storage.get(key))
   );
   res.json(data);
+});
+
+// STT vias websocket
+const wss = new WebSocketServer({ port: WS_PORT as number });
+wss.on('connection', socket => {
+  console.log('client requests transcription');
+  const transcriber = new SpeechToTextTranscriber();
+
+  transcriber.onTranscribe().subscribe(transcription => {
+    socket.send(transcription);
+  });
+
+  socket.on('message', (data: ArrayBufferLike) => {
+    transcriber.write(data);
+  });
+
+  socket.on('close', () => {
+    console.log('end transcription');
+    transcriber.end();
+  });
 });
 
 app.use(errorHandler);

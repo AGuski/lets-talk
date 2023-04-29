@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "rpg-gpt": {
+    "lets-talk": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/rpg-gpt",
+            "outputPath": "dist/lets-talk",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -78,10 +78,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "rpg-gpt:build:production"
+              "browserTarget": "lets-talk:build:production"
             },
             "development": {
-              "browserTarget": "rpg-gpt:build:development"
+              "browserTarget": "lets-talk:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -89,7 +89,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "rpg-gpt:build"
+            "browserTarget": "lets-talk:build"
           }
         },
         "test": {

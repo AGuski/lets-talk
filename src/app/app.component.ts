@@ -7,7 +7,7 @@ import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'rpg-gpt';
+  title = 'lets-talk';
 
   constructor() {}
 

@@ -1,27 +1,44 @@
-# RpgGpt
+# Let's talk
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.0.0.
+A server and web client UI for an ever expanding set of features around OpenAI's GPT ChatCompletion API. Powered by Node.js, Angular, and the OpenAI API.
+
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Right now there is only a development server. To run it, you will need to have Node.js installed. 
 
-## Code scaffolding
+Run `npm install` to install the dependencies. 
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Then, run `npm run start:server` to start the server. 
 
-## Build
+Then, in a separate terminal, run `npm start` to start the client. 
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+The client will be available at `http://localhost:4200/`. The server will be available at `http://localhost:3000/`. The server will automatically reload if you change any of the source files.
 
-## Running unit tests
+## Current Features
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+- Basic chat conversations
+- Session/Conversation management (Buggy)
+- Basic model settings (model, temperature, max tokens)
+- A Tokenizer that gives a rough estimation what the last completion cost and how many tokens it used.
+- Google Cloud Speech to Text integration (requires a Google Cloud account and a service account key)
+- Parsing of Markup in the messages (messes up the margins...)
 
-## Running end-to-end tests
+## Setting up the env
+A `.env` file is required in the root directory of the project. It should contain the following variables:
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+```shell
+OPENAI_API_KEY=<your openai api key>
+// If you want to use the Google Cloud Speech to Text integration:
+GOOGLE_APPLICATION_CREDENTIALS=<path to your google cloud service account key>
 
-## Further help
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Session Management
+
+Sessions (or conversations) will be stored via keyv in a `storage.json` file and persist.
+The web app will store the current session in local storage and will load it on page load.
+
+Session management is somewhat buggy right now, but it works.
+
+

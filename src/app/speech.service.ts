@@ -1,13 +1,13 @@
 import { Injectable, OnDestroy } from "@angular/core";
 
 import RecordRTC, { StereoAudioRecorder } from "recordrtc";
-import { Observable, ReplaySubject } from "rxjs";
+import { Observable, Subject } from "rxjs";
 
 @Injectable({
   providedIn: 'root',
 })
 export class SpeechService implements OnDestroy {
-  private currentTranscription$ = new ReplaySubject<string>(1);
+  private currentTranscription$ = new Subject<string>();
   private socket: WebSocket | undefined;
   private recordRTC: RecordRTC | undefined;
 
